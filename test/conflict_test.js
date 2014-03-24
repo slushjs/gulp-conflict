@@ -187,6 +187,34 @@ describe('gulp-conflict', function () {
 
     stream.end();
   });
+
+  it('should not crash when folders exist in stream', function (done) {
+    var dir = new gutil.File({
+      path: __dirname,
+      cwd: __dirname,
+      base: __dirname,
+      contents: null
+    });
+
+    mockPrompt([{replace: 'replace'}]);
+
+    var stream = conflict(__dirname);
+
+    stream.on('error', function(err) {
+      should.exist(err);
+      done(err);
+    });
+
+    stream.on('data', function (file) {
+      should.exist(file);
+      file.relative.should.equal('');
+      done();
+    });
+
+    stream.write(dir);
+
+    stream.end();
+  });
 });
 
 /**

@@ -18,8 +18,8 @@ module.exports = function conflict (dest, opt) {
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
-    fs.exists(newPath, function (exists) {
-      if (!all && exists) {
+    fs.stat(newPath, function (err, stat) {
+      if (!all && stat && !stat.isDirectory()) {
         fs.readFile(newPath, 'utf8', function (err, contents) {
           if (err) {
             error('Reading old file for comparison failed with: ' + err.message);
