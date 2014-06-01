@@ -69,8 +69,8 @@ Type: `Object`, *optional*
 [npm-url]: https://npmjs.org/package/gulp-conflict
 [npm-image]: https://badge.fury.io/js/gulp-conflict.png
 
-[travis-url]: http://travis-ci.org/klei/gulp-conflict
-[travis-image]: https://secure.travis-ci.org/klei/gulp-conflict.png?branch=master
+[travis-url]: http://travis-ci.org/slushjs/gulp-conflict
+[travis-image]: https://secure.travis-ci.org/slushjs/gulp-conflict.png?branch=master
 
-[depstat-url]: https://david-dm.org/klei/gulp-conflict
-[depstat-image]: https://david-dm.org/klei/gulp-conflict.png
+[depstat-url]: https://david-dm.org/slushjs/gulp-conflict
+[depstat-image]: https://david-dm.org/slushjs/gulp-conflict.png
