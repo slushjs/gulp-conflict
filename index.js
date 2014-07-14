@@ -14,7 +14,7 @@ module.exports = function conflict (dest, opt) {
 
   opt = opt || {};
 
-  var all = false;
+  var all = opt.skipAll || false;
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
