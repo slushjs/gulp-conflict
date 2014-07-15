@@ -103,7 +103,7 @@ describe('gulp-conflict', function () {
     ];
 
     mockPrompt({
-      replace: 'all'
+      replace: 'replaceAll'
     });
 
     var stream = conflict(__dirname),
