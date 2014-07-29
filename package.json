@@ -4,7 +4,7 @@
   "description": "Check if files in stream conflict with those in target dir, with option to use new, keep old, show diff, etc.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "NODE_ENV=test mocha -R spec"
   },
   "repository": {
     "type": "git",

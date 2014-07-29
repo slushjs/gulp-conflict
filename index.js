@@ -26,12 +26,12 @@ module.exports = function conflict (dest, opt) {
             error('Reading old file for comparison failed with: ' + err.message);
           }
           if (contents === String(file.contents)) {
-            log('Skipping ' + file.relative + ' (identical)');
+            logFile('Skipping', file, stat, '(identical)');
             return cb();
           }
 
           if (skipAll) {
-            log('Skipping ' + file.relative);
+            logFile('Skipping', file, stat);
             return cb();
           }
 
@@ -41,21 +41,21 @@ module.exports = function conflict (dest, opt) {
                 replaceAll = true;
                 /* falls through */
               case 'replace':
-                log('Keeping ' + file.relative);
+                logFile('Keeping', file, stat);
                 this.push(file);
                 break;
               case 'skipAll':
                 skipAll = true;
                 /* falls through */
               case 'skip':
-                log('Skipping ' + file.relative);
+                logFile('Skipping', file, stat);
                 break;
               case 'end':
                 log(gutil.colors.red('Aborting...'));
                 process.exit(0);
                 break;
               case 'diff':
-                log('Showing diff for ' + file.relative);
+                logFile('Showing diff for', file, stat);
                 diffFiles(file, newPath);
                 ask(file, askCb.bind(this));
                 return;
@@ -65,7 +65,7 @@ module.exports = function conflict (dest, opt) {
           ask(file, askCb.bind(this));
         }.bind(this));
       } else {
-        log('Keeping ' + file.relative);
+        logFile('Keeping', file, stat);
         this.push(file);
         cb();
       }
@@ -138,12 +138,31 @@ function colorFromPart (part) {
   return 'grey';
 }
 
+function logFile (message, file, stat, extraText) {
+  if (!file || !file.relative || (stat && stat.isDirectory())) {
+    return;
+  }
+  var fileName = gutil.colors.magenta(file.relative);
+  if (extraText) {
+    log(message, fileName, extraText);
+  } else {
+    log(message, fileName);
+  }
+}
+
 function log () {
+  if (isTest()) {
+    return;
+  }
   var logger = gutil.log.bind(gutil, '[' + gutil.colors.cyan('conflict') + ']');
   logger.apply(logger, arguments);
 }
 
 function error (message) {
   throw new gutil.PluginError(pkg.name, message);
+}
+
+function isTest () {
+  return process.env.NODE_ENV === 'test';
 }
 
