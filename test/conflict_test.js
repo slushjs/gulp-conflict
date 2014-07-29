@@ -103,7 +103,7 @@ describe('gulp-conflict', function () {
     ];
 
     mockPrompt({
-      replace: 'all'
+      replace: 'replaceAll'
     });
 
     var stream = conflict(__dirname),
@@ -121,6 +121,41 @@ describe('gulp-conflict', function () {
 
     stream.on('end', function () {
       count.should.equal(2);
+      done();
+    });
+
+    files.forEach(function (file) {
+      stream.write(file);
+    });
+
+    stream.end();
+  });
+
+  it('should skip all conflicting files on `s) skip this and all...`', function (done) {
+    var files = [
+      fixture(__filename),
+      fixture('test.json')
+    ];
+
+    mockPrompt({
+      replace: 'skipAll'
+    });
+
+    var stream = conflict(__dirname),
+        count = 0;
+
+    stream.on('error', function(err) {
+      should.exist(err);
+      done(err);
+    });
+
+    stream.on('data', function (file) {
+      should.not.exist(file);
+      count += 1;
+    });
+
+    stream.on('end', function () {
+      count.should.equal(0);
       done();
     });
 

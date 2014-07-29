@@ -14,12 +14,13 @@ module.exports = function conflict (dest, opt) {
 
   opt = opt || {};
 
-  var all = false;
+  var replaceAll = opt.replaceAll || false;
+  var skipAll = opt.skipAll || false;
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
     fs.stat(newPath, function (err, stat) {
-      if (!all && stat && !stat.isDirectory()) {
+      if (!replaceAll && stat && !stat.isDirectory()) {
         fs.readFile(newPath, 'utf8', function (err, contents) {
           if (err) {
             error('Reading old file for comparison failed with: ' + err.message);
@@ -28,15 +29,24 @@ module.exports = function conflict (dest, opt) {
             log('Skipping ' + file.relative + ' (identical)');
             return cb();
           }
+
+          if (skipAll) {
+            log('Skipping ' + file.relative);
+            return cb();
+          }
+
           var askCb = function askCb (action) {
             switch (action) {
-              case 'all':
-                all = true;
+              case 'replaceAll':
+                replaceAll = true;
                 /* falls through */
               case 'replace':
                 log('Keeping ' + file.relative);
                 this.push(file);
                 break;
+              case 'skipAll':
+                skipAll = true;
+                /* falls through */
               case 'skip':
                 log('Skipping ' + file.relative);
                 break;
@@ -79,7 +89,11 @@ function ask (file, cb) {
     }, {
       key: 'a',
       name: 'replace this and all others',
-      value: 'all'
+      value: 'replaceAll'
+    }, {
+      key: 's',
+      name: 'skip this and all others',
+      value: 'skipAll'
     }, {
       key: 'x',
       name: 'abort',
