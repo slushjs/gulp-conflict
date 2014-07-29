@@ -155,7 +155,7 @@ describe('gulp-conflict', function () {
     });
 
     stream.on('end', function () {
-      count.should.equal(2);
+      count.should.equal(0);
       done();
     });
 
@@ -165,7 +165,7 @@ describe('gulp-conflict', function () {
 
     stream.end();
   });
-  
+
   it('should abort (exit process) on `x) abort`', function (done) {
     var file = fixture(__filename);
 
