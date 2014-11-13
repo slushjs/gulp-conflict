@@ -41,7 +41,7 @@ module.exports = function conflict (dest, opt) {
                 replaceAll = true;
                 /* falls through */
               case 'replace':
-                logFile('Keeping', file, stat);
+                logFile('Overwriting', file, stat);
                 this.push(file);
                 break;
               case 'skipAll':
@@ -65,7 +65,7 @@ module.exports = function conflict (dest, opt) {
           ask(file, askCb.bind(this));
         }.bind(this));
       } else {
-        logFile('Keeping', file, stat);
+        logFile('Creating', file, stat);
         this.push(file);
         cb();
       }
