@@ -26,12 +26,21 @@ module.exports = function conflict (dest, opt) {
             error('Reading old file for comparison failed with: ' + err.message);
           }
           if (contents === String(file.contents)) {
-            logFile('Skipping', file, stat, '(identical)');
+            logFile({
+              message: 'Skipping',
+              file: file,
+              stat: stat,
+              extraText: '(identical)'
+            });
             return cb();
           }
 
           if (skipAll) {
-            logFile('Skipping', file, stat);
+            logFile({
+              message: 'Skipping',
+              file: file,
+              stat: stat
+            });
             return cb();
           }
 
@@ -41,21 +50,33 @@ module.exports = function conflict (dest, opt) {
                 replaceAll = true;
                 /* falls through */
               case 'replace':
-                logFile('Overwriting', file, stat);
+                logFile({
+                  message: 'Overwriting',
+                  file: file,
+                  stat: stat
+                });
                 this.push(file);
                 break;
               case 'skipAll':
                 skipAll = true;
                 /* falls through */
               case 'skip':
-                logFile('Skipping', file, stat);
+                logFile({
+                  message: 'Skipping',
+                  file: file,
+                  stat: stat
+                });
                 break;
               case 'end':
                 log(gutil.colors.red('Aborting...'));
                 process.exit(0);
                 break;
               case 'diff':
-                logFile('Showing diff for', file, stat);
+                logFile({
+                  message: 'Showing diff for',
+                  file: file,
+                  stat: stat
+                });
                 diffFiles(file, newPath);
                 ask(file, askCb.bind(this));
                 return;
@@ -65,7 +86,11 @@ module.exports = function conflict (dest, opt) {
           ask(file, askCb.bind(this));
         }.bind(this));
       } else {
-        logFile('Creating', file, stat);
+        logFile({
+          message: 'Creating',
+          file: file,
+          stat: stat
+        });
         this.push(file);
         cb();
       }
@@ -138,7 +163,15 @@ function colorFromPart (part) {
   return 'grey';
 }
 
-function logFile (message, file, stat, extraText) {
+/*
+ * Args: message, file, stat, extraText
+ */
+function logFile(options){
+  var message   = options.message,
+      file      = options.file,
+      stat      = options.stat,
+      extraText = options.extraText;
+
   if (!file || !file.relative || (stat && stat.isDirectory())) {
     return;
   }
