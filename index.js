@@ -16,6 +16,7 @@ module.exports = function conflict (dest, opt) {
 
   var replaceAll = opt.replaceAll || false;
   var skipAll = opt.skipAll || false;
+  var logger = opt.logger || log;
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
@@ -30,7 +31,8 @@ module.exports = function conflict (dest, opt) {
               message: 'Skipping',
               file: file,
               stat: stat,
-              extraText: '(identical)'
+              extraText: '(identical)',
+              logger: logger
             });
             return cb();
           }
@@ -39,7 +41,8 @@ module.exports = function conflict (dest, opt) {
             logFile({
               message: 'Skipping',
               file: file,
-              stat: stat
+              stat: stat,
+              logger: logger
             });
             return cb();
           }
@@ -53,7 +56,8 @@ module.exports = function conflict (dest, opt) {
                 logFile({
                   message: 'Overwriting',
                   file: file,
-                  stat: stat
+                  stat: stat,
+                  logger: logger
                 });
                 this.push(file);
                 break;
@@ -64,7 +68,8 @@ module.exports = function conflict (dest, opt) {
                 logFile({
                   message: 'Skipping',
                   file: file,
-                  stat: stat
+                  stat: stat,
+                  logger: logger
                 });
                 break;
               case 'end':
@@ -75,7 +80,8 @@ module.exports = function conflict (dest, opt) {
                 logFile({
                   message: 'Showing diff for',
                   file: file,
-                  stat: stat
+                  stat: stat,
+                  logger: logger
                 });
                 diffFiles(file, newPath);
                 ask(file, askCb.bind(this));
@@ -89,7 +95,8 @@ module.exports = function conflict (dest, opt) {
         logFile({
           message: 'Creating',
           file: file,
-          stat: stat
+          stat: stat,
+          logger: logger
         });
         this.push(file);
         cb();
@@ -170,16 +177,17 @@ function logFile(options){
   var message   = options.message,
       file      = options.file,
       stat      = options.stat,
-      extraText = options.extraText;
+      extraText = options.extraText,
+      logger    = options.logger;
 
   if (!file || !file.relative || (stat && stat.isDirectory())) {
     return;
   }
   var fileName = gutil.colors.magenta(file.relative);
   if (extraText) {
-    log(message, fileName, extraText);
+    logger(message, fileName, extraText);
   } else {
-    log(message, fileName);
+    logger(message, fileName);
   }
 }
 
