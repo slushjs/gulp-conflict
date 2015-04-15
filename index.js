@@ -16,6 +16,7 @@ module.exports = function conflict (dest, opt) {
 
   var replaceAll = opt.replaceAll || false;
   var skipAll = opt.skipAll || false;
+  var defaultChoiceIndex = opt.defaultChoiceIndex || null;
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
@@ -57,12 +58,12 @@ module.exports = function conflict (dest, opt) {
               case 'diff':
                 logFile('Showing diff for', file, stat);
                 diffFiles(file, newPath);
-                ask(file, askCb.bind(this));
+                ask(file, defaultChoiceIndex, askCb.bind(this));
                 return;
             }
             cb();
           };
-          ask(file, askCb.bind(this));
+          ask(file, defaultChoiceIndex, askCb.bind(this));
         }.bind(this));
       } else {
         logFile('Creating', file, stat);
@@ -73,11 +74,12 @@ module.exports = function conflict (dest, opt) {
   });
 };
 
-function ask (file, cb) {
+function ask (file, defaultChoiceIndex, cb) {
   inquirer.prompt([{
     type: 'expand',
     name: 'replace',
     message: 'Replace ' + file.relative + '?',
+    default: defaultChoiceIndex,
     choices: [{
       key: 'y',
       name: 'replace',
