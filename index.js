@@ -7,6 +7,32 @@ var through2 = require('through2'),
     path = require('path'),
     pkg = require('./package');
 
+var choices = [{
+    key: 'y',
+    name: 'replace',
+    value: 'replace'
+  }, {
+    key: 'n',
+    name: 'do not replace',
+    value: 'skip'
+  }, {
+    key: 'a',
+    name: 'replace this and all others',
+    value: 'replaceAll'
+  }, {
+    key: 's',
+    name: 'skip this and all others',
+    value: 'skipAll'
+  }, {
+    key: 'x',
+    name: 'abort',
+    value: 'end'
+  }, {
+    key: 'd',
+    name: 'show the differences between the old and the new',
+    value: 'diff'
+  }];
+    
 module.exports = function conflict (dest, opt) {
   if (!dest) {
     error('Missing destination dir parameter!');
@@ -17,6 +43,14 @@ module.exports = function conflict (dest, opt) {
   var replaceAll = opt.replaceAll || false;
   var skipAll = opt.skipAll || false;
   var defaultChoice = opt.defaultChoice || null;
+
+  var defaultChoiceIndex = null;
+
+  choices.forEach(function(choice, index) {
+    if (choice.key === defaultChoice) {
+      defaultChoiceIndex = index;
+    }
+  });
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
@@ -58,12 +92,12 @@ module.exports = function conflict (dest, opt) {
               case 'diff':
                 logFile('Showing diff for', file, stat);
                 diffFiles(file, newPath);
-                ask(file, defaultChoice, askCb.bind(this));
+                ask(file, defaultChoiceIndex, askCb.bind(this));
                 return;
             }
             cb();
           };
-          ask(file, defaultChoice, askCb.bind(this));
+          ask(file, defaultChoiceIndex, askCb.bind(this));
         }.bind(this));
       } else {
         logFile('Creating', file, stat);
@@ -74,41 +108,7 @@ module.exports = function conflict (dest, opt) {
   });
 };
 
-function ask (file, defaultChoice, cb) {
-
-  var choices = [{
-      key: 'y',
-      name: 'replace',
-      value: 'replace'
-    }, {
-      key: 'n',
-      name: 'do not replace',
-      value: 'skip'
-    }, {
-      key: 'a',
-      name: 'replace this and all others',
-      value: 'replaceAll'
-    }, {
-      key: 's',
-      name: 'skip this and all others',
-      value: 'skipAll'
-    }, {
-      key: 'x',
-      name: 'abort',
-      value: 'end'
-    }, {
-      key: 'd',
-      name: 'show the differences between the old and the new',
-      value: 'diff'
-    }];
-
-  var defaultChoiceIndex = null;
-
-  choices.forEach(function(choice, index) {
-    if (choice.key === defaultChoice) {
-      defaultChoiceIndex = index;
-    }
-  });
+function ask (file, defaultChoiceIndex, cb) {
 
   inquirer.prompt([{
     type: 'expand',
