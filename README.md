@@ -61,6 +61,7 @@ Specify destination directory to compare files in, should be the same as destina
 Type: `Object`, *optional*
 
 **options.cwd** - specify another working directory than `process.cwd()`
+
 **options.defaultChoice** - default choice on conflicts e.g. `'y'` (replace, default), `'n'` (skip), `'d'` (diff)
 
 ## License
