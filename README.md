@@ -62,6 +62,8 @@ Type: `Object`, *optional*
 
 **options.cwd** - specify another working directory than `process.cwd()`
 
+**options.defaultChoice** - default choice on conflicts e.g. `'y'` (replace, default), `'n'` (skip), `'d'` (diff)
+
 ## License
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
