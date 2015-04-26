@@ -7,7 +7,8 @@ var through2 = require('through2'),
     path = require('path'),
     pkg = require('./package');
 
-var choices = [{
+var choices = [
+  {
     key: 'y',
     name: 'replace',
     value: 'replace'
@@ -31,8 +32,9 @@ var choices = [{
     key: 'd',
     name: 'show the differences between the old and the new',
     value: 'diff'
-  }];
-    
+  }
+];
+
 module.exports = function conflict (dest, opt) {
   if (!dest) {
     error('Missing destination dir parameter!');
@@ -51,6 +53,7 @@ module.exports = function conflict (dest, opt) {
       defaultChoiceIndex = index;
     }
   });
+  var logger = opt.logger || log;
 
   return through2.obj(function (file, enc, cb) {
     var newPath = path.resolve(opt.cwd || process.cwd(), dest, file.relative);
@@ -61,12 +64,23 @@ module.exports = function conflict (dest, opt) {
             error('Reading old file for comparison failed with: ' + err.message);
           }
           if (contents === String(file.contents)) {
-            logFile('Skipping', file, stat, '(identical)');
+            logFile({
+              message: 'Skipping',
+              file: file,
+              stat: stat,
+              extraText: '(identical)',
+              logger: logger
+            });
             return cb();
           }
 
           if (skipAll) {
-            logFile('Skipping', file, stat);
+            logFile({
+              message: 'Skipping',
+              file: file,
+              stat: stat,
+              logger: logger
+            });
             return cb();
           }
 
@@ -76,21 +90,36 @@ module.exports = function conflict (dest, opt) {
                 replaceAll = true;
                 /* falls through */
               case 'replace':
-                logFile('Overwriting', file, stat);
+                logFile({
+                  message: 'Overwriting',
+                  file: file,
+                  stat: stat,
+                  logger: logger
+                });
                 this.push(file);
                 break;
               case 'skipAll':
                 skipAll = true;
                 /* falls through */
               case 'skip':
-                logFile('Skipping', file, stat);
+                logFile({
+                  message: 'Skipping',
+                  file: file,
+                  stat: stat,
+                  logger: logger
+                });
                 break;
               case 'end':
                 log(gutil.colors.red('Aborting...'));
                 process.exit(0);
                 break;
               case 'diff':
-                logFile('Showing diff for', file, stat);
+                logFile({
+                  message: 'Showing diff for',
+                  file: file,
+                  stat: stat,
+                  logger: logger
+                });
                 diffFiles(file, newPath);
                 ask(file, defaultChoiceIndex, askCb.bind(this));
                 return;
@@ -100,7 +129,12 @@ module.exports = function conflict (dest, opt) {
           ask(file, defaultChoiceIndex, askCb.bind(this));
         }.bind(this));
       } else {
-        logFile('Creating', file, stat);
+        logFile({
+          message: 'Creating',
+          file: file,
+          stat: stat,
+          logger: logger
+        });
         this.push(file);
         cb();
       }
@@ -151,15 +185,24 @@ function colorFromPart (part) {
   return 'grey';
 }
 
-function logFile (message, file, stat, extraText) {
+/*
+ * Args: message, file, stat, extraText
+ */
+function logFile(options){
+  var message   = options.message,
+      file      = options.file,
+      stat      = options.stat,
+      extraText = options.extraText,
+      logger    = options.logger;
+
   if (!file || !file.relative || (stat && stat.isDirectory())) {
     return;
   }
   var fileName = gutil.colors.magenta(file.relative);
   if (extraText) {
-    log(message, fileName, extraText);
+    logger(message, fileName, extraText);
   } else {
-    log(message, fileName);
+    logger(message, fileName);
   }
 }
 
