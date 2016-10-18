@@ -39,7 +39,7 @@ gulp.src(__dirname + '/templates/**')
 ### In your `gulpfile.js`:
 
 ```javascript
-var install = require("gulp-conflict");
+var conflict = require("gulp-conflict");
 
 gulp.src(['./files/*.js'])
   .pipe(conflict('./dir'))
