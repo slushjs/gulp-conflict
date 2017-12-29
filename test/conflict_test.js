@@ -4,13 +4,13 @@ var chai = require('chai'),
     should = chai.should(),
     inquirer = require('inquirer'),
     diff = require('diff'),
-    gutil = require('gulp-util'),
+    Vinyl = require('vinyl'),
     path = require('path'),
     conflict = require('../.');
 
 function fixture (file) {
   var filepath = path.join(__dirname, file);
-  return new gutil.File({
+  return new Vinyl({
     path: filepath,
     cwd: __dirname,
     base: path.join(__dirname, path.dirname(file)),
@@ -224,7 +224,7 @@ describe('gulp-conflict', function () {
   });
 
   it('should not crash when folders exist in stream', function (done) {
-    var dir = new gutil.File({
+    var dir = new Vinyl({
       path: __dirname,
       cwd: __dirname,
       base: __dirname,

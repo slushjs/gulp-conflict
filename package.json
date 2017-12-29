@@ -26,13 +26,16 @@
   },
   "homepage": "https://github.com/slushjs/gulp-conflict",
   "dependencies": {
-    "through2": "~0.6.3",
-    "gulp-util": "~3.0.1",
+    "chalk": "^2.3.0",
+    "diff": "^1.0.8",
+    "fancy-log": "^1.3.2",
     "inquirer": "~0.8.0",
-    "diff": "^1.0.8"
+    "plugin-error": "^0.1.2",
+    "through2": "~0.6.3"
   },
   "devDependencies": {
     "chai": "~1.10.0",
-    "mocha": "~2.0.1"
+    "mocha": "~2.0.1",
+    "vinyl": "^2.1.0"
   }
 }
