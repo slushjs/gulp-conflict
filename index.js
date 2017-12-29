@@ -1,7 +1,9 @@
 'use strict';
 var through2 = require('through2'),
     inquirer = require('inquirer'),
-    gutil = require('gulp-util'),
+    chalk = require('chalk'),
+    PluginError = require('plugin-error'),
+    fancyLog = require('fancy-log'),
     diff = require('diff'),
     fs = require('fs'),
     path = require('path'),
@@ -110,7 +112,7 @@ module.exports = function conflict (dest, opt) {
                 });
                 break;
               case 'end':
-                log(gutil.colors.red('Aborting...'));
+                log(chalk.red('Aborting...'));
                 process.exit(0);
                 break;
               case 'diff':
@@ -163,7 +165,7 @@ function diffFiles (newFile, oldFilePath) {
   try {
     var content = fs.readFileSync(oldFilePath, 'utf8');
     var differences = diff.diffLines(content, String(newFile.contents));
-    log('File differences: ' + gutil.colors.bgGreen('added') + ' ' + gutil.colors.bgRed('removed') + '\n\n' + differences.map(formatPart).join(''));
+    log('File differences: ' + chalk.bgGreen('added') + ' ' + chalk.bgRed('removed') + '\n\n' + differences.map(formatPart).join(''));
   } catch (err) {
     error('Reading old file for diff failed with: ' + err.message);
   }
@@ -172,7 +174,7 @@ function diffFiles (newFile, oldFilePath) {
 function formatPart (part, i) {
   var indent = new Array(8).join(' ');
   return (!i ? indent : '') + part.value.split('\n').map(function (line) {
-    return gutil.colors[colorFromPart(part)](line);
+    return chalk[colorFromPart(part)](line);
   }).join('\n' + indent);
 }
 
@@ -198,7 +200,7 @@ function logFile(options){
   if (!file || !file.relative || (stat && stat.isDirectory())) {
     return;
   }
-  var fileName = gutil.colors.magenta(file.relative);
+  var fileName = chalk.magenta(file.relative);
   if (extraText) {
     logger(message, fileName, extraText);
   } else {
@@ -210,15 +212,14 @@ function log () {
   if (isTest()) {
     return;
   }
-  var logger = gutil.log.bind(gutil, '[' + gutil.colors.cyan('conflict') + ']');
+  var logger = fancyLog.bind(null, '[' + chalk.cyan('conflict') + ']');
   logger.apply(logger, arguments);
 }
 
 function error (message) {
-  throw new gutil.PluginError(pkg.name, message);
+  throw new PluginError(pkg.name, message);
 }
 
 function isTest () {
   return process.env.NODE_ENV === 'test';
 }
-
